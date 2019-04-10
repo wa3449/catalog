@@ -15,11 +15,33 @@ session = DBSession()
 
 app = Flask(__name__)
 
-# api endpoints
+# api endpoints 
+
+@app.route('/catalog/<string:categoryName>/items', methods=['GET'])
+def getCategoryItemsHandler(categoryName):
+    category = getCategory(categoryName)
+    if category:
+        items = getAllCategoryItems(category.id)
+        if items:
+            result = jsonify(Item=[i.serialize for i in items])
+            return result
+    return jsonify(error="category not found")
 
 
-@app.route('/categories', methods=['GET', 'POST'])
-def categories_handler():
+@app.route('/catalog/<string:categoryName>/<string:itemName>', methods=['GET'])
+def getCategoryItemHandler(categoryName, itemName):
+    item = getCategoryItem(categoryName, itemName)
+    print(item)
+    if item:
+        return jsonify(Item = item.serialize)
+    return jsonify(error="item not found")
+
+
+# api endpoints for seeding/testing the db load
+
+@app.route('/catalog/categories', methods=['GET', 'POST'])
+def categoriesHandler():
+    """ GET: all categories and POST: create category """
     if request.method == 'GET':
         categories = getAllCategories()
         result = jsonify(Category=[i.serialize for i in categories])
@@ -36,18 +58,9 @@ def categories_handler():
             return jsonify(error="not enough info to create a category")
 
 
-
-@app.route('/categories/<int:id>', methods=['GET'])
-def category_handler(id):
-    if request.method == "GET":
-        category = getCategory(id)
-        return jsonify(Category = category.serialize)
-    else:
-        return jsonify(error="category not found")
-
-
-@app.route('/items', methods=['GET', 'POST'])
-def items_handler():
+@app.route('/catalog/items', methods=['GET', 'POST'])
+def itemsHandler():
+    """ GET: all items and POST: create item """
     if request.method == 'GET':
         items = getAllItems()
         result = jsonify(Item=[i.serialize for i in items])
@@ -87,9 +100,9 @@ def getAllCategories():
     return categories
 
 
-def getCategory(id):
+def getCategory(name):
     """ Get a single category - if no category found, None is returned """
-    category = session.query(Category).filter_by(id = id).one_or_none()
+    category = session.query(Category).filter_by(name = name).one_or_none()
     return category
     
 
@@ -113,12 +126,23 @@ def getAllItems():
     return items
 
 
-def getAllItemsForACategory(category_id):
+def getAllCategoryItems(category_id):
     """ Get all items for a category - if no item(s) found, None is returned """
     category = session.query(Category).filter_by(id = category_id).one_or_none()
     if category:
         items = session.query(Item).filter_by(category_id = category.id)
         return items
+    return None
+
+
+def getCategoryItem(categoryName, itemName):
+    category = getCategory(categoryName)
+    if category:
+        name = itemName.replace("+", " ")
+        item = session.query(Item).\
+            filter(Item.category_id == category.id).\
+            filter(Item.name == name).one_or_none()
+        return item
     return None
 
 
