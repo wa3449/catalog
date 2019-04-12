@@ -24,17 +24,16 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(32), index=True)
-    email = Column(String, nullable=False)
-    picture = Column(String)
-    password_hash = Column(String(64))
+    username = Column(String(250), nullable=False)
+    email = Column(String(250), index=True)
+    picture = Column(String(250))
 
 
 class Category(Base):
     __tablename__ = 'category'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(250), index=True)
 
     @property
     def serialize(self):
@@ -49,7 +48,7 @@ class Item(Base):
     __tablename__ = 'item'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    name = Column(String(250), index=True)
     description = Column(String)
     created_on = Column(DateTime())
     category_id = Column(Integer, ForeignKey('category.id'))

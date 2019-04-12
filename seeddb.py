@@ -207,10 +207,31 @@ except Exception as err:
 else:
 	print "Test 2 PASS: Succesfully Made all new items"
 
-# Test 3 - get all categories test
+# Test 3 - api endpoint tests
 
 try:
     url = address + "/catalog/categories"
+
+    h = httplib2.Http()
+    resp, result = h.request(url, 'GET')
+    if resp['status'] != '200':
+        raise Exception('Received an unsuccessful status code of %s' % resp['status'])
+    print json.loads(result)
+
+
+    category = "Fantasy"
+    url = address + "/catalog/%s/items" % category
+
+    h = httplib2.Http()
+    resp, result = h.request(url, 'GET')
+    if resp['status'] != '200':
+        raise Exception('Received an unsuccessful status code of %s' % resp['status'])
+    print json.loads(result)
+
+
+    category = "Fantasy"
+    item = "Alice+in+Wonderland"
+    url = address + "/catalog/{category}/{item}".format(category=category, item=item)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'GET')

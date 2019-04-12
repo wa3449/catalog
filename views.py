@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
+from flask import session as login_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Category, Item, User
 from datetime import datetime
+from models import Base, Category, Item, User
 
 
 engine = create_engine('sqlite:///instance/itemcatalog.db')
@@ -18,34 +19,36 @@ app = Flask(__name__)
 # api endpoints 
 
 @app.route('/catalog/<string:categoryName>/items', methods=['GET'])
-def getCategoryItemsHandler(categoryName):
+def getItemsByCategoryHandler(categoryName):
+    """ get items for a given category """
     category = getCategory(categoryName)
     if category:
-        items = getAllCategoryItems(category.id)
+        items = getItemsByCategory(category.id)
         if items:
-            result = jsonify(Item=[i.serialize for i in items])
-            return result
-    return jsonify(error="category not found")
+            return jsonify(Item=[i.serialize for i in items])
+        else:
+            return jsonify(error="items not found")
+    else:
+        return jsonify(error="category not found")
 
 
 @app.route('/catalog/<string:categoryName>/<string:itemName>', methods=['GET'])
-def getCategoryItemHandler(categoryName, itemName):
-    item = getCategoryItem(categoryName, itemName)
-    print(item)
+def getItemByCategoryHandler(categoryName, itemName):
+    item = getItemByCategory(categoryName, itemName)
     if item:
         return jsonify(Item = item.serialize)
-    return jsonify(error="item not found")
+    else:
+        return jsonify(error="item not found")
 
 
-# api endpoints for seeding/testing the db load
+# api endpoints for seeding the db load
 
 @app.route('/catalog/categories', methods=['GET', 'POST'])
 def categoriesHandler():
-    """ GET: all categories and POST: create category """
+    """ GET: get all categories and POST: create category """
     if request.method == 'GET':
-        categories = getAllCategories()
-        result = jsonify(Category=[i.serialize for i in categories])
-        return result
+        categories = getCategories()
+        return jsonify(Category=[i.serialize for i in categories])
     elif request.method == 'POST':
         name = request.args.get('name')
         if name:
@@ -55,17 +58,13 @@ def categoriesHandler():
             else:
                 return jsonify(error="create Category failed")
         else:
-            return jsonify(error="not enough info to create a category")
+            return jsonify(error="insufficient data to create a category")
 
 
-@app.route('/catalog/items', methods=['GET', 'POST'])
+@app.route('/catalog/items', methods=['POST'])
 def itemsHandler():
-    """ GET: all items and POST: create item """
-    if request.method == 'GET':
-        items = getAllItems()
-        result = jsonify(Item=[i.serialize for i in items])
-        return result
-    elif request.method == 'POST':
+    """ POST: create item """
+    if request.method == 'POST':
         name = request.args.get('name')
         description = request.args.get('description')
         category_id = request.args.get('category')
@@ -77,10 +76,29 @@ def itemsHandler():
             else:
                 return jsonify(error="create item failed")
         else:
-            return jsonify(error="not enough info to create an item")
+            return jsonify(error="insufficient data to create an item")
 
 
-# model methods
+# model methods for user, category, and item
+
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+        user = session.query(User).filter_by(email=email).one_or_none()
+        return user
 
 
 def createCategory(name):
@@ -94,15 +112,15 @@ def createCategory(name):
         return None
 
 
-def getAllCategories():
-    """ Get all categories - if no categories found, None is returned """
+def getCategories():
+    """ get categories """
     categories = session.query(Category).all()
     return categories
 
 
 def getCategory(name):
-    """ Get a single category - if no category found, None is returned """
-    category = session.query(Category).filter_by(name = name).one_or_none()
+    """ get a category by name """
+    category = session.query(Category).filter_by(name = name).first()
     return category
     
 
@@ -120,14 +138,8 @@ def createItem(name, description, category_id, user_id):
     return None
 
 
-def getAllItems():
-    """ Get all items - if no item(s) found, None is returned """
-    items = session.query(Item).all()
-    return items
-
-
-def getAllCategoryItems(category_id):
-    """ Get all items for a category - if no item(s) found, None is returned """
+def getItemsByCategory(category_id):
+    """ get items by category id """
     category = session.query(Category).filter_by(id = category_id).one_or_none()
     if category:
         items = session.query(Item).filter_by(category_id = category.id)
@@ -135,13 +147,14 @@ def getAllCategoryItems(category_id):
     return None
 
 
-def getCategoryItem(categoryName, itemName):
+def getItemByCategory(categoryName, itemName):
+    """ get item by a category name and item name """
     category = getCategory(categoryName)
     if category:
         name = itemName.replace("+", " ")
         item = session.query(Item).\
             filter(Item.category_id == category.id).\
-            filter(Item.name == name).one_or_none()
+            filter(Item.name == name).first()
         return item
     return None
 
