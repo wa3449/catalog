@@ -1,12 +1,23 @@
+#!/usr/bin/env python
+#
+# seedb.py
+# This module contains:
+#    API calls to load the database
+#    Simple test for the JSON API endpoints for the
+# Item Catalog Project for Udacity Full Stack Nanodegree
+#
+# See README.md file for detailed information on the application
+#
+#
 import httplib2
 import sys
 import json
 
 address = 'http://localhost:5000'
 
-# Load categories - writing genres
+# Step 1: load categories - writing genres
 
-print "Test 1: creating categories"
+print "load categories"
 
 try:
 
@@ -67,13 +78,13 @@ try:
     print json.loads(result)
 
 except Exception as err:
-	print "Test 1 FAILED: Could not add new categories"
+	print "Step 1 FAILED: Could not add new categories"
 	print err.args
 	sys.exit()
 else:
-	print "Test 1 PASS: Succesfully Made all new categories"
+	print "Step 1 PASS: Succesfully Made all new categories"
 
-# Test 2 - add items - Novels
+# Step 2: load items - Novels
 
 try:
 
@@ -201,16 +212,17 @@ try:
 
 
 except Exception as err:
-	print "Test 2 FAILED: Could not add new items"
+	print "Step 2 FAILED: Could not add new items"
 	print err.args
 	sys.exit()
 else:
-	print "Test 2 PASS: Succesfully Made all new items"
+	print "Step 2 PASS: Succesfully Made all new items"
 
-# Test 3 - api endpoint tests
+# Test 1 - JSON api endpoint tests
 
 try:
-    url = address + "/catalog/categories"
+    # get catalog
+    url = address + "/catalog.JSON"
 
     h = httplib2.Http()
     resp, result = h.request(url, 'GET')
@@ -219,8 +231,9 @@ try:
     print json.loads(result)
 
 
+    # get all items for a category
     category = "Fantasy"
-    url = address + "/catalog/%s/items" % category
+    url = address + "/catalog/%s/items/JSON" % category
 
     h = httplib2.Http()
     resp, result = h.request(url, 'GET')
@@ -229,9 +242,10 @@ try:
     print json.loads(result)
 
 
+    # get a specific category item by category and item name
     category = "Fantasy"
     item = "Alice+in+Wonderland"
-    url = address + "/catalog/{category}/{item}".format(category=category, item=item)
+    url = address + "/catalog/{category}/{item}/JSON".format(category=category, item=item)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'GET')
@@ -241,8 +255,8 @@ try:
 
 
 except Exception as err:
-	print "Test 3 FAILED:  could not get categories & items"
+	print "Test 1 FAILED:  could not successfully execute JSON API endpoints
 	print err.args
 	sys.exit()
 else:
-	print "Test 3 PASS: Succesfully passed all tests"
+	print "Test 1 PASS: Succesfully passed all tests"

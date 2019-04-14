@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # models.py
-# The models.py module creates the model for the
+# This module creates the model for the
 # Item Catalog Project for Udacity Full Stack Nanodegree
 #
 # See README.md file for detailed information on the application
@@ -10,11 +10,11 @@
 import os
 import sys
 from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from datetime import datetime
-from sqlalchemy import DateTime
 
 
 Base = declarative_base()
@@ -37,10 +37,9 @@ class Category(Base):
 
     @property
     def serialize(self):
-
         return {
             'id': self.id,
-            'name': self.name,
+            'name': self.name
         }
 
 
@@ -52,13 +51,12 @@ class Item(Base):
     description = Column(String)
     created_on = Column(DateTime())
     category_id = Column(Integer, ForeignKey('category.id'))
-    category = relationship(Category)
+    category = relationship(Category, backref='items')
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
     @property
     def serialize(self):
-
         return {
             'id': self.id,
             'name': self.name,
