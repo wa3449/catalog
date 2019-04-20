@@ -82,7 +82,7 @@ except Exception as err:
 	print err.args
 	sys.exit()
 else:
-	print "Step 1 PASS: Succesfully Made all new categories"
+	print "Step 1 PASS: Succesfully made all new categories"
 
 # Step 2: load items - Novels
 
@@ -166,7 +166,7 @@ try:
     description = "Journey to the Center of the Earth is an 1864 science fiction novel by Jules Verne. The story involves German professor Otto Lidenbrock who believes there are volcanic tubes going toward the centre of the Earth."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=Journey+to+the+Center+of+the+Earth&description=%s&category=2&user=1" % urldescription 
+    url = address + "/catalog/items?name=Journey+to+the+Center+of+the+Earth&description=%s&category=2&user=1" % urldescription
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
     if resp['status'] != '200':
@@ -177,7 +177,7 @@ try:
     description = "The Lost Planet is a 1953 juvenile science fiction novel by Angus MacVicar, published by Burke, London. It is the first of the popular novel series The Lost Planet, which was adapted for radio and television."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Lost+Planet?description=%s&category=2&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Lost+Planet&description=%s&category=2&user=1" % urldescription
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -190,7 +190,7 @@ try:
     description = '"The Adventure of Silver Blaze", one of the 56 Sherlock Holmes short stories written by Sir Arthur Conan Doyle. One of the most popular Sherlock Holmes short stories, "Silver Blaze" focuses on the disappearance of the eponymous race horse (a famous winner) on the eve of an important race and on the apparent murder of its trainer.'
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Adventure+of+Silver+Blaze?description=%s&category=6&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Adventure+of+Silver+Blaze&description=%s&category=6&user=1" % urldescription
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -202,7 +202,7 @@ try:
     description = "The Mysterious Affair at Styles is a detective novel by British writer Agatha Christie. Styles was Christie's first published novel. It introduced Hercule Poirot, Inspector Japp, and Arthur Hastings. Poirot, a Belgian refugee of the Great War, is settling in England near the home of Emily Inglethorp, who helped him to his new life. His friend Hastings arrives as a guest at her home. When the woman is killed, Poirot uses his detective skills to solve the mystery."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Mysterious+Affair+at+Styles?description=%s&category=6&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Mysterious+Affair+at+Styles&description=%s&category=6&user=1" % urldescription
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -255,7 +255,7 @@ try:
 
 
 except Exception as err:
-	print "Test 1 FAILED:  could not successfully execute JSON API endpoints
+	print "Test 1 FAILED:  could not successfully execute JSON API endpoints"
 	print err.args
 	sys.exit()
 else:
