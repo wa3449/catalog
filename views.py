@@ -297,7 +297,7 @@ def getItemsByCategoryHandler(categoryName):
     """ get items for a given category name """
     category = getCategoryByName(categoryName)
     if category:
-        items = getItemsByCategory(category.id)
+        items = getItemsByCategoryId(category.id)
         if items:
             return jsonify(Item=[i.serialize for i in items])
         else:
@@ -319,6 +319,7 @@ def getItemByCategoryHandler(categoryName, itemName):
 # view api routes
 
 
+@app.route('/')
 @app.route('/catalog')
 def showHome():
     """ Shows a list of categories and the last 6
@@ -336,11 +337,11 @@ def showHome():
             itemInfo=itemInfo)
 
 
-@app.route('/catalog/<int:category_id>/items')
-def showItemsByCategory(category_id):
+@app.route('/catalog/<string:category_name>/items')
+def showItemsByCategory(category_name):
     categories = getCategories()
-    category = getCategoryById(category_id)
-    items = getItemsByCategory(category_id)
+    category = getCategoryByName(category_name)
+    items = getItemsByCategoryId(category.id)
     return render_template('categoryitems.html',
             categories=categories,
             category=category,
@@ -356,9 +357,8 @@ def showItemDetail(category_name, item_name):
             item=item)
 
 
-#wa3449
-@app.route('/catalog/<int:category_id>/addItem', methods=['GET', 'POST'])
-def showAddItem(category_id):
+@app.route('/catalog/add', methods=['GET', 'POST'])
+def showAddItem():
     if request.method == 'GET':
         categories = getCategories()
         return render_template('additem.html', categories=categories)
@@ -373,6 +373,49 @@ def showAddItem(category_id):
         item = createItem(name, description, category_id, user_id)
 
         flash('%s add item was successful' % item.name)
+        return redirect(url_for('showHome'))
+
+
+#wa3449
+@app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
+def showEditItem(item_name):
+    if request.method == 'GET':
+        categories = getCategories()
+        item = getItemByName(item_name)
+        return render_template('edititem.html',
+                item=item,
+                categories=categories)
+    elif request.method == 'POST':
+
+        item = getItemByName(item_name)
+
+        name = request.form['name']
+        description = request.form['description']
+        category = getCategoryByName(request.form['category'])
+        category_id = category.id
+
+        updateItem(item.id, name, description, category_id)
+
+        flash('%s edit item was successful' % item.name)
+
+        return redirect(url_for('showHome'))
+
+
+@app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
+def showDeleteItem(item_name):
+    if request.method == 'GET':
+        item = getItemByName(item_name)
+        return render_template('deleteitem.html', item=item)
+    elif request.method == 'POST':
+
+        item = getItemByName(item_name)
+
+        if item:
+            deleteItem(item.id)
+            flash('%s delete item was successful' % item.name)
+        else:
+            flash('%s delete item was NOT successful' % item_name)
+            
         return redirect(url_for('showHome'))
 
 
@@ -489,7 +532,7 @@ def createItem(name, description, category_id, user_id):
     return None
 
 
-def getItemsByCategory(category_id):
+def getItemsByCategoryId(category_id):
     """ get items by category id """
     category = session.query(Category).filter_by(id = category_id).first()
     if category:
@@ -510,7 +553,7 @@ def getItemByCategory(categoryName, itemName):
     return None
 
 
-def getItem(itemName):
+def getItemByName(itemName):
     """ Get item - if no item found, None is returned"""
     item = session.query(Item).filter_by(name = itemName).first()
     return item
@@ -526,12 +569,9 @@ def updateItem(id, name, description, category_id):
     """ Update item """
     item = session.query(Item).filter_by(id = id).first()
     if item:
-        if not name:
-            item.name = name
-        if not description:
-            item.description = description
-        if not category_id:
-            item.category_id = category_id
+        item.name = name
+        item.description = description
+        item.category_id = category_id
         session.add(item)
         session.commit()
     return None

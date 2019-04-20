@@ -1,5 +1,5 @@
 <html lang="en">
-<title>udacity item catalog project > add item</title>
+<title>udacity item catalog project > delete item</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -24,21 +24,11 @@ body {font-size:16px;}
 
 
 
-      <h1 class="w3-large w3-text-blue">Add Item</h1>
+      <h1 class="w3-large w3-text-blue">Delete Item</h1>
 
+      <h3>Are you sure you want to delete {{item.name}}?</h3>
       <form action="#" method='POST'>
-        <p>Name:</p>
-            <input type='text' size='30' name='name'>
-        <p>Description:</p>
-        <textarea name="description" rows="4" cols="30"></textarea>
-        <p>Category:</p>
-        <select name="category">
-          {% for category in categories %}
-        	<option>{{category.name}}</option>
-          {% endfor %}
-        </select>
-      </br></br>
-            <button type="submit">Save Item</button>
+        <button type="submit">Delete Item</button>
       </form>
       <a href='{{url_for('showHome')}}'><button type="button">Home</button></a>
 

@@ -27,8 +27,8 @@ body {font-size:16px;}
         <p>{{item.description}}</p>
         </div>
         {% if 'username' in session %}
-          <a href='{{url_for('showAddItem', category_id=1)}}'><button type="button">Update Item</button></a>
-          <a href='{{url_for('showAddItem', category_id=1)}}'><button type="button">Delete Item</button></a>
+          <a href='{{url_for('showEditItem', item_name=item.name)}}'><button type="button">Update Item</button></a>
+          <a href='{{url_for('showDeleteItem', item_name=item.name)}}'><button type="button">Delete Item</button></a>
         {% endif %}
         <a href='{{url_for('showHome')}}'><button type="button">Home</button></a>
     </div>

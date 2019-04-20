@@ -27,17 +27,17 @@ body {font-size:16px;}
 
     <!-- categories -->
     <div class="w3-container" id="categories" style="margin-top:25px">
-      <h1 class="w3-xxxlarge w3-text-blue"><b>categories</b></h1>
+      <h1 class="w3-xxxlarge w3-text-blue"><b>Categories</b></h1>
       {% for c in categories %}
       <div>
-        <a href='{{url_for('showItemsByCategory', category_id=c.id)}}'>{{c.name}}</a>
+        <a href='{{url_for('showItemsByCategory', category_name=c.name)}}'>{{c.name}}</a>
       </div>
       {% endfor %}
     </div>
 
     <!-- latest items -->
     <div class="w3-container" id="latest novels" style="margin-top:25px">
-      <h1 class="w3-xxxlarge w3-text-blue"><b>latest novels</b></h1>
+      <h1 class="w3-xxxlarge w3-text-blue"><b>Latest Novels</b></h1>
       {% for x, y in itemInfo.items() %}
         <div>
           <p>{{x.name}} <i>({{y}})</i></p>
