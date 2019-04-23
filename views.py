@@ -418,12 +418,14 @@ def showDeleteItem(item_name):
         return redirect('/login')
 
     item = getItemByName(item_name)
+
     if item.user_id != login_session['user_id']:
         flash('user is not authorized to delete this item "%s"' % item.name)
         return redirect(url_for('showHome'))
 
     if request.method == 'GET':
-        return render_template('deleteitem.html', item=item)
+        category = getCategoryById(item.category_id)
+        return render_template('deleteitem.html', item=item, category=category)
     elif request.method == 'POST':
 
         if item:
@@ -431,7 +433,6 @@ def showDeleteItem(item_name):
             flash('"%s" delete item was successful' % item.name)
         else:
             flash('%s delete item was NOT successful' % item_name)
-            
         return redirect(url_for('showHome'))
 
 

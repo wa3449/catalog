@@ -1,8 +1,10 @@
+<!DOCTYPE html>
 <html lang="en">
-<title>udacity item catalog project</title>
+<title>item catalog tool > home</title>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
 <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
 <style>
@@ -11,65 +13,79 @@ body {font-size:16px;}
 .w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
 .w3-half img:hover{opacity:1}
 </style>
-<body>
 
-  <!-- !PAGE CONTENT! -->
-  <div class="w3-main" style="margin-left:340px;margin-right:40px">
-
-    <!-- Header -->
-    <div class="w3-container" style="margin-top:80px" id="showcase">
-      <h1 class="w3-jumbo"><b>Literary Genres</b></h1>
-      <p class="w3-text-blue"><b>definition:</b> works of prose, poetry, drama, hybrid forms, or
-        other literature that are distinguished by shared literary conventions,
-        similarities in topic, theme, style, or common settings, character
-        types, or formulaic patterns of character interactions and events, and
-        an overall predictable form</p>
-<div>
-		{%if 'username' not in session %}
-			<a href="{{url_for('showLogin')}}"><button type="button">Login</button></a>
-			{% else %}
-			<a href="{{url_for('disconnect')}}"><button type="button">Logout</button></a>
-		{% endif %}
-</div>
-    </div>
-
-    <!-- categories -->
-    <div class="w3-container" id="categories" style="margin-top:25px">
-      <h1 class="w3-xxxlarge w3-text-blue"><b>Categories</b></h1>
-      {% for c in categories %}
-      <div>
-        <a href='{{url_for('showItemsByCategory', category_name=c.name)}}'>{{c.name}}</a>
-      </div>
-      {% endfor %}
-    </div>
-<div>
-      {% if 'username' in session %}
-        <a href='{{url_for('showAddItem')}}'><button type="button">Add Item</button></a>
-      {% endif %}
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-indigo w3-card w3-left-align w3-large">
+    {%if 'username' not in session %}
+    <a href="{{url_for('showLogin')}}" class="w3-bar-item w3-button w3-padding-medium w3-white w3-right">Login</a>
+    {% else %}
+    <a href="{{url_for('showAddItem')}}" class="w3-bar-item w3-button w3-padding-medium w3-white w3-left">Add Item</a>
+    <a href="{{url_for('disconnect')}}" class="w3-bar-item w3-button w3-padding-medium w3-white w3-right">Logout</a>
+    {% endif %}
+  </div>
 </div>
 
-    <!-- latest items -->
-    <div class="w3-container" id="latest novels" style="margin-top:25px">
-      <h1 class="w3-xxxlarge w3-text-blue"><b>Latest Novels</b></h1>
-      {% for x, y in resultset %}
+<!-- Header -->
+<header class="w3-container w3-indigo w3-center" style="padding:32px 128px">
+  <h1 class="w3-margin w3-jumbo">Literary Genres</h1>
+</header>
+
+<!-- content -->
+<div class="w3-row-padding w3-padding-16 w3-grayscale">
+
+<!-- categories -->
+  <div class="w3-col m4 w3-margin-bottom">
+    <div class="w3-light-grey">
+      <div class="w3-container">
+        <h1 class="w3-xlarge w3-text-blue"><b>Categories</b></h1>
+        {% for c in categories %}
         <div>
-          <p>{{x.name}} <i>({{y}})</i></p>
+          <ul class="w3-ul">
+              <li><a href='{{url_for('showItemsByCategory', category_name=c.name)}}'>{{c.name}}</a></li>
+          <ul>
         </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
-<div >
-	{% with messages = get_flashed_messages() %}
-		{% if messages %}
-			<ul>
-				{% for message in messages %}
-					<li> <strong> {{ message }} </strong> </li>
-				{% endfor %}
-			</ul>
-		{% endif %}
-	{% endwith %}
-</div>
+  </div>
 
-<!-- End page content -->
+<!-- items -->
+  <div class="w3-col m4 w3-margin-bottom">
+    <div class="w3-light-grey">
+      <div class="w3-container">
+        <h1 class="w3-xlarge w3-text-blue"><b>Latest Novels</b></h1>
+        {% for x, y in resultset %}
+        <div>
+          <ul class="w3-ul">
+              <li>{{x.name}} <i>({{y}})</i></li>
+          <ul>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+<!-- messages -->
+  <div class="w3-col m4 w3-margin-bottom">
+    <div class="w3-light-grey">
+      <div class="w3-container">
+        <h1 class="w3-xlarge w3-text-blue"><b>Messages</b></h1>
+        <div>
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <ul class="w3-ul">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 </body>
