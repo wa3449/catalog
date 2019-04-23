@@ -28,6 +28,15 @@ class User(Base):
     email = Column(String(250), index=True)
     picture = Column(String(250))
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'picture': self.picture
+        }
+
 
 class Category(Base):
     __tablename__ = 'category'
@@ -49,7 +58,7 @@ class Item(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), index=True)
     description = Column(String)
-    created_on = Column(DateTime())
+    edited_on = Column(DateTime())
     category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category, backref='items')
     user_id = Column(Integer, ForeignKey('user.id'))
@@ -61,7 +70,7 @@ class Item(Base):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'created_on': str(self.created_on),
+            'edited_on': str(self.edited_on),
             'category_id': self.category_id,
             'user_id': self.user_id
         }

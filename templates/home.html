@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
 <style>
 body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
 body {font-size:16px;}
@@ -23,6 +24,13 @@ body {font-size:16px;}
         similarities in topic, theme, style, or common settings, character
         types, or formulaic patterns of character interactions and events, and
         an overall predictable form</p>
+<div>
+		{%if 'username' not in session %}
+			<a href="{{url_for('showLogin')}}"><button type="button">Login</button></a>
+			{% else %}
+			<a href="{{url_for('disconnect')}}"><button type="button">Logout</button></a>
+		{% endif %}
+</div>
     </div>
 
     <!-- categories -->
@@ -34,16 +42,32 @@ body {font-size:16px;}
       </div>
       {% endfor %}
     </div>
+<div>
+      {% if 'username' in session %}
+        <a href='{{url_for('showAddItem')}}'><button type="button">Add Item</button></a>
+      {% endif %}
+</div>
 
     <!-- latest items -->
     <div class="w3-container" id="latest novels" style="margin-top:25px">
       <h1 class="w3-xxxlarge w3-text-blue"><b>Latest Novels</b></h1>
-      {% for x, y in itemInfo.items() %}
+      {% for x, y in resultset %}
         <div>
           <p>{{x.name}} <i>({{y}})</i></p>
         </div>
       {% endfor %}
     </div>
+<div >
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<ul>
+				{% for message in messages %}
+					<li> <strong> {{ message }} </strong> </li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+	{% endwith %}
+</div>
 
 <!-- End page content -->
 </div>

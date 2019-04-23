@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
 <style>
 body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
 body {font-size:16px;}
@@ -32,9 +33,9 @@ body {font-size:16px;}
         <p>Description:</p>
         <textarea name="description" rows="4">{{item.description}}</textarea>
         <p>Category:</p>
-        <select name="category">
-          {% for category in categories %}
-        	<option>{{category.name}}</option>
+        <select id="category" name="category">
+          {% for c in categories %}
+        	<option value="{{c.name}}">{{c.name}}</option>
           {% endfor %}
         </select>
       </br></br>
@@ -47,5 +48,22 @@ body {font-size:16px;}
 
 <!-- End page content -->
 </div>
+
+
+<script>
+function setSelect(control, value) {
+    for (i = 0; i < control.options.length; i++) {
+        if (control.options[i].value == value) {
+            control.options[i].selected = true;
+            break;
+        }
+    }
+    return;
+}
+
+setSelect(document.getElementById("category"), "{{categoryName}}");
+
+</script>
+
 </body>
 </html>

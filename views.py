@@ -274,10 +274,10 @@ def disconnect():
         del login_session['user_id']
         del login_session['provider']
         flash("You have successfully been logged out.")
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('showHome'))
     else:
         flash("You were not logged in")
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('showHome'))
 
 
 # JSON api endpoints
@@ -324,17 +324,17 @@ def getItemByCategoryHandler(categoryName, itemName):
 def showHome():
     """ Shows a list of categories and the last 6
         items that have been added/updated """
-    login_session['username'] = "jimi"
     categories = getCategories()
     items = getLatestItems()
-    itemInfo = dict()
+    categoryNames = list()
     if items:
         for i in items:
             category = getCategoryById(i.category_id)
-            itemInfo[i]=category.name
+            categoryNames.append(category.name)
+    resultset = zip(items, categoryNames)    
     return render_template('home.html',
             categories=categories,
-            itemInfo=itemInfo)
+            resultset=resultset)
 
 
 @app.route('/catalog/<string:category_name>/items')
@@ -359,6 +359,9 @@ def showItemDetail(category_name, item_name):
 
 @app.route('/catalog/add', methods=['GET', 'POST'])
 def showAddItem():
+    if 'username' not in login_session:
+        return redirect('/login')
+
     if request.method == 'GET':
         categories = getCategories()
         return render_template('additem.html', categories=categories)
@@ -368,26 +371,33 @@ def showAddItem():
         description = request.form['description']
         category = getCategoryByName(request.form['category'])
         category_id = category.id
-        user_id = 1
+        user_id = login_session['user_id']
 
         item = createItem(name, description, category_id, user_id)
 
-        flash('%s add item was successful' % item.name)
+        flash('"%s" add item was successful' % item.name)
         return redirect(url_for('showHome'))
 
 
-#wa3449
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def showEditItem(item_name):
+
+    if 'username' not in login_session:
+        return redirect('/login')
+
+    item = getItemByName(item_name)
+    if item.user_id != login_session['user_id']:
+        flash('user is not authorized to edit this item "%s"' % item.name)
+        return redirect(url_for('showHome'))
+
     if request.method == 'GET':
         categories = getCategories()
-        item = getItemByName(item_name)
+        category = getCategoryById(item.category_id)
         return render_template('edititem.html',
                 item=item,
+                categoryName=category.name,
                 categories=categories)
     elif request.method == 'POST':
-
-        item = getItemByName(item_name)
 
         name = request.form['name']
         description = request.form['description']
@@ -396,23 +406,29 @@ def showEditItem(item_name):
 
         updateItem(item.id, name, description, category_id)
 
-        flash('%s edit item was successful' % item.name)
+        flash('"%s" edit item was successful' % item.name)
 
         return redirect(url_for('showHome'))
 
 
 @app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
 def showDeleteItem(item_name):
+
+    if 'username' not in login_session:
+        return redirect('/login')
+
+    item = getItemByName(item_name)
+    if item.user_id != login_session['user_id']:
+        flash('user is not authorized to delete this item "%s"' % item.name)
+        return redirect(url_for('showHome'))
+
     if request.method == 'GET':
-        item = getItemByName(item_name)
         return render_template('deleteitem.html', item=item)
     elif request.method == 'POST':
 
-        item = getItemByName(item_name)
-
         if item:
             deleteItem(item.id)
-            flash('%s delete item was successful' % item.name)
+            flash('"%s" delete item was successful' % item.name)
         else:
             flash('%s delete item was NOT successful' % item_name)
             
@@ -420,6 +436,16 @@ def showDeleteItem(item_name):
 
 
 # api endpoints for seeding the database
+
+
+@app.route('/catalog/user', methods=['POST'])
+def userHandler():
+    """ POST: add user """
+    name = request.args.get('name')
+    email = request.args.get('email')
+    picture = request.args.get('picture')
+    user = addUser(name, email, picture)
+    return jsonify(User= user.serialize)
 
 
 @app.route('/catalog/categories', methods=['GET', 'POST'])
@@ -462,12 +488,22 @@ def itemsHandler():
 
 
 def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session[
-                   'email'], picture=login_session['picture'])
+    newUser = User(username=login_session['username'],
+                email=login_session['email'],
+                picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
+
+
+def addUser(name, email, picture):
+    user = User(username=name,
+                email=email,
+                picture=picture)
+    session.add(user)
+    session.commit()
+    return user
 
 
 def getUserInfo(user_id):
@@ -522,7 +558,7 @@ def createItem(name, description, category_id, user_id):
     """ Create an item """
     item = Item(name = name,
         description = description,
-        created_on = datetime.today(),
+        edited_on = datetime.today(),
         category_id = category_id,
         user_id = user_id)
     if item:
@@ -560,7 +596,7 @@ def getItemByName(itemName):
 
 
 def getLatestItems():
-    items = session.query(Item).order_by(desc(Item.created_on)).limit(6)
+    items = session.query(Item).order_by(desc(Item.edited_on)).limit(5)
     return items
 
 
@@ -572,6 +608,7 @@ def updateItem(id, name, description, category_id):
         item.name = name
         item.description = description
         item.category_id = category_id
+        item.edited_on = datetime.today()
         session.add(item)
         session.commit()
     return None

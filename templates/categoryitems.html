@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+<link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
 <style>
 body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
 body {font-size:16px;}
@@ -29,9 +30,6 @@ body {font-size:16px;}
       </div>
       {% endfor %}
 
-      {% if 'username' in session %}
-        <a href='{{url_for('showAddItem')}}'><button type="button">Add Item</button></a>
-      {% endif %}
       <a href='{{url_for('showHome')}}'><button type="button">Home</button></a>
     </div>
 

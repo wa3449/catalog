@@ -14,12 +14,26 @@ import sys
 import json
 
 address = 'http://localhost:5000'
+userID = 0
 
-# Step 1: load categories - writing genres
+# Step 1: load user & categories - writing genres
 
-print "load categories"
+print "load user and categories"
 
 try:
+
+# load user
+
+    url = address + '/catalog/user?name=Meister+Eckhart'
+    h = httplib2.Http()
+    resp, result = h.request(url, 'POST')
+    if resp['status'] != '200':
+        raise Exception('Received an unsuccessful status code of %s' % resp['status'])
+    data = json.loads(result)
+    print(data)
+    userID = data['User']['id']
+
+# load categories
 
     url = address + '/catalog/categories?name=Fantasy'
     h = httplib2.Http()
@@ -93,7 +107,7 @@ try:
     description = "It tells of a young girl named Alice falling through a rabbit hole into a fantasy world populated by peculiar, anthropomorphic creatures."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=Alice+in+Wonderland&description=%s&category=1&user=1" % urldescription
+    url = address + "/catalog/items?name=Alice+in+Wonderland&description=%s&category=1&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -105,7 +119,7 @@ try:
     description = "The Chronicles of Narnia is a series of seven fantasy novels by C. S. Lewis."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Chronicles+of+Narnia&description=%s&category=1&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Chronicles+of+Narnia&description=%s&category=1&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -117,7 +131,7 @@ try:
     description = "Charlie and the Chocolate Factory is a 1964 children's novel by British author Roald Dahl. The story features the adventures of young Charlie Bucket inside the chocolate factory of eccentric chocolatier Willy Wonka."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=Charlie+and+the+Chocolate+Factory&description=%s&category=1&user=1" % urldescription
+    url = address + "/catalog/items?name=Charlie+and+the+Chocolate+Factory&description=%s&category=1&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -129,7 +143,7 @@ try:
     description = "Harry Potter is a series of fantasy novels written by British author J. K. Rowling. The novels chronicle the lives of a young wizard, Harry Potter, and his friends Hermione Granger and Ron Weasley, all of whom are students at Hogwarts School of Witchcraft and Wizardry. The main story arc concerns Harry's struggle against Lord Voldemort, a dark wizard who intends to become immortal, overthrow the wizard governing body known as the Ministry of Magic, and subjugate all wizards and Muggles (non-magical people)."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=Harry+Potter&description=%s&category=1&user=1" % urldescription
+    url = address + "/catalog/items?name=Harry+Potter&description=%s&category=1&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -141,7 +155,7 @@ try:
     description = "The Hobbit, or There and Back Again is a children's fantasy novel by English author J. R. R. Tolkien. The Hobbit is set within Tolkien's fictional universe and follows the quest of home-loving hobbit Bilbo Baggins to win a share of the treasure guarded by Smaug the dragon. Bilbo's journey takes him from light-hearted, rural surroundings into more sinister territory."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Hobbit&description=%s&category=1&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Hobbit&description=%s&category=1&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -154,7 +168,7 @@ try:
     description = "The War of the Worlds is a science fiction novel by English author H. G. Wells. The novel is the first-person narrative of both an unnamed protagonist in Surrey and of his younger brother in London as southern England is invaded by Martians."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+War+of+the+Worlds&description=%s&category=2&user=1" % urldescription
+    url = address + "/catalog/items?name=The+War+of+the+Worlds&description=%s&category=2&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -166,7 +180,7 @@ try:
     description = "Journey to the Center of the Earth is an 1864 science fiction novel by Jules Verne. The story involves German professor Otto Lidenbrock who believes there are volcanic tubes going toward the centre of the Earth."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=Journey+to+the+Center+of+the+Earth&description=%s&category=2&user=1" % urldescription
+    url = address + "/catalog/items?name=Journey+to+the+Center+of+the+Earth&description=%s&category=2&user=%d" % (urldescription, userID)
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
     if resp['status'] != '200':
@@ -177,7 +191,7 @@ try:
     description = "The Lost Planet is a 1953 juvenile science fiction novel by Angus MacVicar, published by Burke, London. It is the first of the popular novel series The Lost Planet, which was adapted for radio and television."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Lost+Planet&description=%s&category=2&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Lost+Planet&description=%s&category=2&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -190,7 +204,7 @@ try:
     description = '"The Adventure of Silver Blaze", one of the 56 Sherlock Holmes short stories written by Sir Arthur Conan Doyle. One of the most popular Sherlock Holmes short stories, "Silver Blaze" focuses on the disappearance of the eponymous race horse (a famous winner) on the eve of an important race and on the apparent murder of its trainer.'
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Adventure+of+Silver+Blaze&description=%s&category=6&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Adventure+of+Silver+Blaze&description=%s&category=6&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
@@ -202,7 +216,7 @@ try:
     description = "The Mysterious Affair at Styles is a detective novel by British writer Agatha Christie. Styles was Christie's first published novel. It introduced Hercule Poirot, Inspector Japp, and Arthur Hastings. Poirot, a Belgian refugee of the Great War, is settling in England near the home of Emily Inglethorp, who helped him to his new life. His friend Hastings arrives as a guest at her home. When the woman is killed, Poirot uses his detective skills to solve the mystery."
     urldescription = description.replace(' ', '+')
 
-    url = address + "/catalog/items?name=The+Mysterious+Affair+at+Styles&description=%s&category=6&user=1" % urldescription
+    url = address + "/catalog/items?name=The+Mysterious+Affair+at+Styles&description=%s&category=6&user=%d" % (urldescription, userID)
 
     h = httplib2.Http()
     resp, result = h.request(url, 'POST')
