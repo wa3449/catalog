@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# views.py
+# application.py
 # This module contains:
 #    JSON API endpoints
 #    view API endpoints
@@ -66,29 +66,23 @@ def fbconnect():
     access_token = request.data
     print "access token received %s " % access_token
 
-
     app_id = json.loads(open('fb_client_secrets.json', 'r').read())[
         'web']['app_id']
     app_secret = json.loads(
         open('fb_client_secrets.json', 'r').read())['web']['app_secret']
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (
-        app_id, app_secret, access_token)
+    url = ('https://graph.facebook.com/oauth/access_token?grant_type='
+           'fb_exchange_token&client_id=%s&client_secret='
+           '%s&fb_exchange_token=%s') % (app_id, app_secret, access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
 
-
     # Use token to get user info from API
     userinfo_url = "https://graph.facebook.com/v2.8/me"
-    '''
-        Due to the formatting for the result from the server token exchange we have to
-        split the token first on commas and select the first index which gives us the key : value
-        for the server access token then we split it on colons to pull out the actual token value
-        and replace the remaining quotes with nothing so that it can be used directly in the graph
-        api calls
-    '''
+
     token = result.split(',')[0].split(':')[1].replace('"', '')
 
-    url = 'https://graph.facebook.com/v2.8/me?access_token=%s&fields=name,id,email' % token
+    url = ('https://graph.facebook.com/v2.8/me?access_token=%s'
+           '&fields=name,id,email') % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     # print "url sent for API access:%s"% url
@@ -103,7 +97,8 @@ def fbconnect():
     login_session['access_token'] = token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token=%s&redirect=0&height=200&width=200' % token
+    url = ('https://graph.facebook.com/v2.8/me/picture?access_token=%s'
+           '&redirect=0&height=200&width=200') % token
     h = httplib2.Http()
     result = h.request(url, 'GET')[1]
     data = json.loads(result)
@@ -123,7 +118,9 @@ def fbconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += (' " style = "width: 300px; height: 300px;border-radius: '
+               '150px;-webkit-border-radius: 150px;-moz-border-radius: '
+               '150px;"> ')
 
     flash("Now logged in as %s" % login_session['username'])
     return output
@@ -134,7 +131,8 @@ def fbdisconnect():
     facebook_id = login_session['facebook_id']
     # The access token must me included to successfully logout
     access_token = login_session['access_token']
-    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' % (facebook_id,access_token)
+    url = 'https://graph.facebook.com/%s/permissions?access_token=%s' \
+        % (facebook_id, access_token)
     h = httplib2.Http()
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
@@ -192,8 +190,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+                 'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -226,13 +224,13 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+    output += ('"style = "width: 300px; height: 300px; border-radius: '
+               '150px; -webkit-border-radius: 150px; -moz-border-radius: '
+               '150px;" > ')
+
     flash("you are now logged in as %s" % login_session['username'])
     print "done!"
     return output
-
-
- #DISCONNECT - Revoke a current user's token and reset their login_session
 
 
 @app.route('/gdisconnect')
@@ -252,7 +250,8 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps(('Failed to revoke token for '
+                                             'given user.'), 400))
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -284,12 +283,13 @@ def disconnect():
 
 
 @app.route('/catalog.JSON')
+@app.route('/catalog/JSON')
 def getCatalogHandler():
     """ return all categories and category items """
     categories = getCategories()
     return jsonify(dict(Catalog=[dict(c.serialize,
-            items=[i.serialize for i in c.items])
-            for c in categories]))
+                   items=[i.serialize for i in c.items])
+                   for c in categories]))
 
 
 @app.route('/catalog/<string:categoryName>/items/JSON')
@@ -311,18 +311,18 @@ def getItemByCategoryHandler(categoryName, itemName):
     """ get a specific category item by category and item name """
     item = getItemByCategory(categoryName, itemName)
     if item:
-       return jsonify(Item = item.serialize)
+        return jsonify(Item=item.serialize)
     else:
         return jsonify(error="item not found"), 404
 
 
-# view api routes
+# HTML api endpoints
 
 
 @app.route('/')
 @app.route('/catalog')
 def showHome():
-    """ Shows a list of categories and the last 6
+    """ Shows a list of categories and the last 5
         items that have been added/updated """
     categories = getCategories()
     items = getLatestItems()
@@ -331,34 +331,37 @@ def showHome():
         for i in items:
             category = getCategoryById(i.category_id)
             categoryNames.append(category.name)
-    resultset = zip(items, categoryNames)    
+    resultset = zip(items, categoryNames)
     return render_template('home.html',
-            categories=categories,
-            resultset=resultset)
+                           categories=categories,
+                           resultset=resultset)
 
 
 @app.route('/catalog/<string:category_name>/items')
 def showItemsByCategory(category_name):
+    """ Shows all the items for a category """
     categories = getCategories()
     category = getCategoryByName(category_name)
     items = getItemsByCategoryId(category.id)
     return render_template('categoryitems.html',
-            categories=categories,
-            category=category,
-            items=items)
+                           categories=categories,
+                           category=category,
+                           items=items)
 
 
 @app.route('/catalog/<string:category_name>/<string:item_name>')
 def showItemDetail(category_name, item_name):
+    """ Shows item detail """
     category = getCategoryByName(category_name)
     item = getItemByCategory(category_name, item_name)
     return render_template('itemdetail.html',
-            category=category,
-            item=item)
+                           category=category,
+                           item=item)
 
 
 @app.route('/catalog/add', methods=['GET', 'POST'])
 def showAddItem():
+    """ Shows form to add an item """
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -381,7 +384,7 @@ def showAddItem():
 
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def showEditItem(item_name):
-
+    """ Show a form to edit an item """
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -394,9 +397,9 @@ def showEditItem(item_name):
         categories = getCategories()
         category = getCategoryById(item.category_id)
         return render_template('edititem.html',
-                item=item,
-                categoryName=category.name,
-                categories=categories)
+                               item=item,
+                               categoryName=category.name,
+                               categories=categories)
     elif request.method == 'POST':
 
         name = request.form['name']
@@ -413,7 +416,7 @@ def showEditItem(item_name):
 
 @app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
 def showDeleteItem(item_name):
-
+    """ Show a form to delete an item """
     if 'username' not in login_session:
         return redirect('/login')
 
@@ -446,7 +449,7 @@ def userHandler():
     email = request.args.get('email')
     picture = request.args.get('picture')
     user = addUser(name, email, picture)
-    return jsonify(User= user.serialize)
+    return jsonify(User=user.serialize)
 
 
 @app.route('/catalog/categories', methods=['GET', 'POST'])
@@ -460,7 +463,7 @@ def categoriesHandler():
         if name:
             category = createCategory(name)
             if category:
-                return jsonify(Category = category.serialize)
+                return jsonify(Category=category.serialize)
             else:
                 return jsonify(error="create Category failed")
         else:
@@ -478,7 +481,7 @@ def itemsHandler():
         if name:
             item = createItem(name, description, category_id, user_id)
             if item:
-                return jsonify(Item = item.serialize)
+                return jsonify(Item=item.serialize)
             else:
                 return jsonify(error="create item failed")
         else:
@@ -490,8 +493,8 @@ def itemsHandler():
 
 def createUser(login_session):
     newUser = User(username=login_session['username'],
-                email=login_session['email'],
-                picture=login_session['picture'])
+                   email=login_session['email'],
+                   picture=login_session['picture'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
@@ -516,19 +519,20 @@ def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
         return user.id
-    except:
+    except EXCEPTION:
         return None
 
 
 def getCatalog():
     """ join category and items """
-    categories = session.query(Category).options(joinedload(Category.items)).all()
+    categories = session.query(Category).options(
+               joinedload(Category.items)).all()
     return categories
 
 
 def createCategory(name):
     """ Create new category """
-    category = Category(name = name)
+    category = Category(name=name)
     if category:
         session.add(category)
         session.commit()
@@ -545,23 +549,23 @@ def getCategories():
 
 def getCategoryByName(name):
     """ get a category by name """
-    category = session.query(Category).filter_by(name = name).first()
+    category = session.query(Category).filter_by(name=name).first()
     return category
 
 
 def getCategoryById(id):
     """ get a category by id """
-    category = session.query(Category).filter_by(id = id).first()
+    category = session.query(Category).filter_by(id=id).first()
     return category
 
 
 def createItem(name, description, category_id, user_id):
     """ Create an item """
-    item = Item(name = name,
-        description = description,
-        edited_on = datetime.today(),
-        category_id = category_id,
-        user_id = user_id)
+    item = Item(name=name,
+                description=description,
+                edited_on=datetime.today(),
+                category_id=category_id,
+                user_id=user_id)
     if item:
         session.add(item)
         session.commit()
@@ -571,9 +575,9 @@ def createItem(name, description, category_id, user_id):
 
 def getItemsByCategoryId(category_id):
     """ get items by category id """
-    category = session.query(Category).filter_by(id = category_id).first()
+    category = session.query(Category).filter_by(id=category_id).first()
     if category:
-        items = session.query(Item).filter_by(category_id = category.id)
+        items = session.query(Item).filter_by(category_id=category.id)
         return items
     return None
 
@@ -592,7 +596,7 @@ def getItemByCategory(categoryName, itemName):
 
 def getItemByName(itemName):
     """ Get item - if no item found, None is returned"""
-    item = session.query(Item).filter_by(name = itemName).first()
+    item = session.query(Item).filter_by(name=itemName).first()
     return item
 
 
@@ -601,10 +605,9 @@ def getLatestItems():
     return items
 
 
-
 def updateItem(id, name, description, category_id):
     """ Update item """
-    item = session.query(Item).filter_by(id = id).first()
+    item = session.query(Item).filter_by(id=id).first()
     if item:
         item.name = name
         item.description = description
@@ -617,12 +620,14 @@ def updateItem(id, name, description, category_id):
 
 def deleteItem(item_id):
     """ Delete item """
-    item = session.query(Item).filter_by(id = item_id).first()
+    item = session.query(Item).filter_by(id=item_id).first()
     if item:
         session.delete(item)
         session.commit()
     return None
 
+
+# main
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
